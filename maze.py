@@ -95,7 +95,7 @@ class Agent:
 
 if __name__ == '__main__':
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION 
-	b = maze_gen(MAZE_PATH+input("Which Maze would you like to generate?")+".txt")
+	b = maze_gen(MAZE_PATH+input("Which Maze would you like to generate?").upper()+".txt")
 	b.show()
 	'''
 	b = Board(15, 20)
