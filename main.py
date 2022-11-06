@@ -2,21 +2,9 @@ import sys
 import random
 from game2dboard import Board
 from PIL import Image
-
-CELL_SIZE = 30
-IMG_PATH = 'img/'
-MAZE_PATH = 'Maze/'
-
-
-AGENT_IMG_BASE_SRC = 'agent.png'
-WALL_IMG_BASE_SRC = 'wall.png'
-GOAL_IMG_BASE_SRC = 'goal.png'
-AGENT_GOALIN_IMG_BASE_SRC = 'agent_goalin.png'
-
-AGENT_IMG_RESIZE_SRC = 'agent_resize.png'
-WALL_IMG_RESIZE_SRC = 'wall_resize.png'
-GOAL_IMG_RESIZE_SRC = 'goal_resize.png'
-AGENT_GOALIN_IMG_RESIZE_SRC = 'agent_goalin_resize.png'
+from maze import Maze
+from agent import Agent
+from constants import *
 
 #FILE PARSER PLUS MAZE GENERATION
 def maze_gen(maze):
@@ -31,7 +19,6 @@ def maze_gen(maze):
 		for x in file_object:
 			maze_rows = [elt.strip() for elt in x.split(',')]
 			MAZE_CONTAINER.append(maze_rows)
-		file_object.close()
 	
 	#CREATES GAME BOARD
 	m = Board(ROW_LENGTH,COL_LENGTH)
@@ -45,7 +32,9 @@ def maze_gen(maze):
 	#VARIABLES TO ASSIST WITH CREATION OF MAZE GAMEBOARD
 	r=0
 	c=0
-
+	
+	agent = None
+	goal = None
 	# LOOP TO TRANSLATE MAZE_CONTAINER TO OUR GAME BOARD
 	# w WILL RESULT IN A WALL, f WILL RESULT IN A FREE SPACE, a WILL RESULT IN AN AGENT, g WILL RESULT IN GOAL
 	for rows in MAZE_CONTAINER:
@@ -56,39 +45,18 @@ def maze_gen(maze):
 			elif col =="f":
 				c+=1
 			elif col =="a":
+				agent = Agent(r, c)
 				m[r][c] = AGENT_IMG_RESIZE_SRC
 				c+=1
 			elif col =="g":
+				goal = (r, c)
 				m[r][c] = GOAL_IMG_RESIZE_SRC
 				c+=1
 		r+=1
 		c=0
-	return m
-'''
-class Maze:
-	def __init__(self, board: Board, agent: Agent, goal: tuple, walls):
-		self.board = board;
-		self.agent = agent
-		self.goal = goal
-		self.walls = walls
-	
-
-
-
-class Agent:
-	def __init__(self, starting_row=0, starting_col=0):
-		self.row = starting_row
-		self.col = starting_col
-	
-	def move_up():
-		self.row -= 1
-	def move_down():
-		self.row += 1
-	def move_right():
-		self.col += 1
-	def move_left():
-		self.col -= 1
-'''
+	if not agent or not goal:
+		sys.exit("No agent or goal found in maze")
+	return Maze(m, agent, goal)
 
 if __name__ == '__main__':
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION
@@ -97,11 +65,8 @@ if __name__ == '__main__':
 	maze_file = sys.argv[1].upper()
 	if maze_file[-4:] != '.txt':
 		maze_file += '.txt'
-		
-	b = maze_gen(MAZE_PATH + maze_file)
-	b.show()
 	
-	
-	input("Type any character to start the agent > ")
+	board = maze_gen(MAZE_PATH + maze_file)
+	board.start()
 	
 	
