@@ -16,7 +16,7 @@ def init_csvs():
 	file.close()
 
 #FILLS OUR MODEL_METRICS
-def metric_creator(max_iters:tuple,test_steps:tuple):
+def metric_creator(max_iters:tuple, test_steps:tuple):
 	metrics_file = open(METRICS_CSV, 'a')
 	metrics_file.write(f'{LEARNING_RATE},{EPSILON},{GAMMA},{max_iters},{test_steps}')
 	metrics_file.write('\n')
@@ -24,7 +24,7 @@ def metric_creator(max_iters:tuple,test_steps:tuple):
 
 #PREFORMS REINFORMENT LEARNING AND TRACKS STEPS TAKEN PER ITERATIONS
 def reinforcement_learning(x:tuple):
-	training_list =[]
+	training_list = []
 	#RUNS AGENT FOR DESIGNATED TRAINING RUNS
 	for _ in range(x):
 		steps = board.agent_training()
