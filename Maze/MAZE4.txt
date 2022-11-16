@@ -1,0 +1,12 @@
+10
+10
+w,w,w,w,w,w,w,w,w,w
+w,a,f,f,f,f,f,f,f,w
+w,f,f,f,f,f,f,f,f,w
+w,f,f,f,f,f,f,f,f,w
+w,f,f,f,f,f,f,f,f,w
+w,f,f,f,f,f,f,f,f,w
+w,f,f,f,f,f,f,f,f,w
+w,f,f,f,f,f,f,f,f,w
+w,f,f,f,f,f,f,f,g,w
+w,w,w,w,w,w,w,w,w,w

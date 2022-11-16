@@ -68,5 +68,13 @@ if __name__ == '__main__':
 	
 	board = maze_gen(MAZE_PATH + maze_file)
 	board.start()
+
+	#RUNS AGENT FOR DESIGNATED TRAINING RUNS
+	for _ in range(TRAINING_RUNS):
+		board.agent_begin_moving()
+
+	#RUNS AGENT ONE LAST TIME TO EMPLOY UPDATED Q_TABLE.
+	#CURRENT RETURNS NUMBER OF STEPS AGENT THINKS IS OPTIMAL AFTER X TRAINING RUNS
+	print(board.agent_begin_moving())
 	
 	

@@ -12,3 +12,9 @@ AGENT_IMG_RESIZE_SRC = 'agent_resize.png'
 WALL_IMG_RESIZE_SRC = 'wall_resize.png'
 GOAL_IMG_RESIZE_SRC = 'goal_resize.png'
 AGENT_GOALIN_IMG_RESIZE_SRC = 'agent_goalin_resize.png'
+
+EPSILON = .1
+LEARNING_RATE = .1
+GAMMA = .8
+
+TRAINING_RUNS = 100
