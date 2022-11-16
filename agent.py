@@ -14,8 +14,8 @@ class Agent:
 	
 	#GETS CURRENT STATE IN REFERENCE TO AGENT AND GOAL POSITION
 	def get_state(self,board:Board):
-		state = self.position[1] * board.ncols
-		state = state + self.position[0]
+		state = self.position[0] * board.ncols
+		state = state + self.position[1]
 		return state
 
 	#INITIATES QTABLE
