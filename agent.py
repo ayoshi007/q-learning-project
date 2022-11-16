@@ -9,15 +9,14 @@ class Agent:
 
 	#GETS NUMBER OF STATES 
 	def getting_number_of_states(self,board:Board):
-		self.num_states = board.size **4
+		self.num_states = board.size **2
 		self.table_init()
 	
 	#GETS CURRENT STATE IN REFERENCE TO AGENT AND GOAL POSITION
 	def get_state(self,board:Board,goal:tuple):
-		state = self.position[0] * board.size**3
-		state = state + self.position[1] * board.size**2
-		state = state + goal[0] * board.size
-		state = state + goal[1]
+		state = self.position[0] * board.size
+		state = state + self.position[1]
+		state = state + goal[0] + goal[1] 
 		return state
 
 	#INITIATES QTABLE
@@ -49,41 +48,59 @@ class Agent:
 		(x,y) = self.position
 		if action == 0: #Go Up
 			if y==0: #IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
-				return -10,False
+				return PUNISHMENT,False
 			elif board[x][y-1] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
-				return -10, False
+				return PUNISHMENT, False
+			elif board[x][y-1] == 'hazard_resize.png': #IF AGENT WALKS ON HAZARD
+				self.position(x,y-1)
+				return HAZARD_PUNISHMENT,False
 			elif board[x][y-1] == 'goal_resize.png':#IF AGENT FINDS GOAL
-				return 20, True
+				return REWARD, True
 			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x,y-1)
-				return -1, False
+				return FREE_MOVEMENT_PENALTY, False
+
+
 		elif action == 1: #Go Down
 			if y == board.nrows + 1:#IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
-				return -10, False
+				return PUNISHMENT, False
 			elif board[x][y+1] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
-				return -10, False
+				return PUNISHMENT, False
+			elif board[x][y+1] == 'hazard_resize.png': #IF AGENT WALKS ON HAZARD
+				self.position(x,y+1)
+				return HAZARD_PUNISHMENT,False
 			elif board[x][y+1] == 'goal_resize.png':#IF AGENT FINDS GOAL
-				return 20, True
+				return REWARD, True
 			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x,y+1)
-				return -1, False
+				return FREE_MOVEMENT_PENALTY, False
+
+
 		elif action == 2: #Go Right
 			if  x == board.ncols + 1: #IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
-				return -10,False
+				return PUNISHMENT,False
 			elif board[x+1][y] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
-				return -10, False
+				return PUNISHMENT, False
+			elif board[x+1][y] == 'hazard_resize.png': #IF AGENT WALKS ON HAZARD
+				self.position(x+1,y)
+				return HAZARD_PUNISHMENT,False
 			elif board[x+1][y] == 'goal_resize.png':#IF AGENT FINDS GOAL
-				return 20, True
+				return REWARD, True
 			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x+1,y)
-				return -1, False
+				return FREE_MOVEMENT_PENALTY, False
+
+
 		elif action == 3: #Go Left
 			if x==0: #IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
-				return -10,False
+				return PUNISHMENT,False
 			elif board[x-1][y] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
-				return -10, False
+				return PUNISHMENT, False
+			elif board[x-1][y] == 'hazard_resize.png': #IF AGENT WALKS ON HAZARD
+				self.position(x-1,y)
+				return HAZARD_PUNISHMENT,False
 			elif board[x-1][y] == 'goal_resize.png':#IF AGENT FINDS GOAL
-				return 20, True
+				return REWARD, True
 			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x-1,y)
-				return -1, False
+				return FREE_MOVEMENT_PENALTY, False
