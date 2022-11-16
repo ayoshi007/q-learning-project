@@ -16,7 +16,7 @@ class Maze:
 		self.board.show()
 	
 	#RENFORCEMENT LEARNER
-	def agent_begin_moving(self):
+	def agent_training(self):
 		done = False
 		steps = 0
 		while not done:
@@ -32,4 +32,23 @@ class Maze:
 			steps = steps + 1
 		#print(self.agent.table_output())
 		self.agent.reset_position()
+		return steps
+
+	def agent_test(self):
+		done = False
+		steps = 0
+		while not done:
+			state = self.agent.get_state(self.board,self.goal)
+			if random.uniform(0,1) < EPSILON:
+				action = random.randint(0,3)
+			else:
+				action = np.argmax(self.agent.get_qtable()[state])
+			reward, done = self.agent.move(self.board,action)
+
+			new_state = self.agent.get_state(self.board,self.goal)
+			self.agent.table_update(state,action,reward,new_state)
+			steps = steps + 1
+		#print(self.agent.table_output())
+		self.agent.reset_position()
+		self.agent.reset_table()
 		return steps

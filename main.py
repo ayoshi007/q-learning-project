@@ -6,6 +6,43 @@ from maze import Maze
 from agent import Agent
 from constants import *
 
+#INITIALIZES OUR CSVS
+def init_csvs():
+	file = open(METRICS_CSV,'w')
+	file.write(METRIC_COLUMNS)
+	file.write('\n')
+	file.close()
+	file = open(MODELHISTORY_CSV, 'w')
+	file.close()
+
+#FILLS OUR MODEL_METRICS
+def metric_creator(max_iters:tuple,test_steps:tuple):
+	metrics_file = open(METRICS_CSV, 'a')
+	metrics_file.write(f'{LEARNING_RATE},{EPSILON},{GAMMA},{max_iters},{test_steps}')
+	metrics_file.write('\n')
+	metrics_file.close()
+
+#PREFORMS REINFORMENT LEARNING AND TRACKS STEPS TAKEN PER ITERATIONS
+def reinforcement_learning(x:tuple):
+	training_list =[]
+	#RUNS AGENT FOR DESIGNATED TRAINING RUNS
+	for _ in range(x):
+		steps = board.agent_training()
+		training_list.append(steps)
+	modelhistory = open(MODELHISTORY_CSV,'a')
+	modelhistory_str = ','.join([str(x) for x in training_list])
+	modelhistory.write(modelhistory_str)
+	modelhistory.write('\n')
+	modelhistory.close()
+	modelhistory_str = None
+	print(training_list)
+	print(f'num of iterations is : {x}')
+	test_steps = board.agent_test()
+	metric_creator(x,test_steps)
+	
+	training_list = []
+
+
 #FILE PARSER PLUS MAZE GENERATION
 def maze_gen(maze):
 	#LIST OF LISTS THAT WILL HOLD THE MAZE AFTER IT HAS BEEN PARSED BY THE PARSER
@@ -65,16 +102,12 @@ if __name__ == '__main__':
 	maze_file = sys.argv[1].upper()
 	if maze_file[-4:] != '.txt':
 		maze_file += '.txt'
-	
+	init_csvs()
 	board = maze_gen(MAZE_PATH + maze_file)
 	board.start()
-
-	#RUNS AGENT FOR DESIGNATED TRAINING RUNS
-	for _ in range(TRAINING_RUNS):
-		board.agent_begin_moving()
-
+	for x in TRAINING_ITERATIONS:
+		reinforcement_learning(x)
 	#RUNS AGENT ONE LAST TIME TO EMPLOY UPDATED Q_TABLE.
 	#CURRENT RETURNS NUMBER OF STEPS AGENT THINKS IS OPTIMAL AFTER X TRAINING RUNS
-	print(board.agent_begin_moving())
 	
 	

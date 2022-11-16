@@ -22,10 +22,13 @@ class Agent:
 
 	#INITIATES QTABLE
 	def table_init(self):
-		num_states = self.num_states
-		num_actions = 4
+		self.num_actions = 4
 		#self.q_table = np.zeros((num_states,num_actions),dtype='uint8')
-		self.q_table = np.zeros((num_states,num_actions))
+		self.q_table = np.zeros((self.num_states,self.num_actions))
+
+	#RESETS QTABLE
+	def reset_table(self):
+		self.q_table = np.zeros((self.num_states,self.num_actions))
 
 	#RETURNS QTABLE
 	def get_qtable(self):
@@ -45,44 +48,42 @@ class Agent:
 	def move(self,board:Board,action):
 		(x,y) = self.position
 		if action == 0: #Go Up
-			if board[x][y-1] == 'wall_resize.png':
+			if y==0: #IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
+				return -10,False
+			elif board[x][y-1] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
 				return -10, False
-			elif board[x][y-1] == 'goal_resize.png':
+			elif board[x][y-1] == 'goal_resize.png':#IF AGENT FINDS GOAL
 				return 20, True
-			else:
+			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x,y-1)
 				return -1, False
 		elif action == 1: #Go Down
-			if board[x][y+1] == 'wall_resize.png':
+			if y == board.nrows + 1:#IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
 				return -10, False
-			elif board[x][y+1] == 'goal_resize.png':
+			elif board[x][y+1] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
+				return -10, False
+			elif board[x][y+1] == 'goal_resize.png':#IF AGENT FINDS GOAL
 				return 20, True
-			else:
+			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x,y+1)
 				return -1, False
 		elif action == 2: #Go Right
-			if board[x+1][y] == 'wall_resize.png':
+			if  x == board.ncols + 1: #IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
+				return -10,False
+			elif board[x+1][y] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
 				return -10, False
-			elif board[x+1][y] == 'goal_resize.png':
+			elif board[x+1][y] == 'goal_resize.png':#IF AGENT FINDS GOAL
 				return 20, True
-			else:
+			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x+1,y)
 				return -1, False
 		elif action == 3: #Go Left
-			if board[x-1][y] == 'wall_resize.png':
+			if x==0: #IF AGENT ATTEMPTS TO STEP OUT OF BOUNDS
+				return -10,False
+			elif board[x-1][y] == 'wall_resize.png':#IF AGENT ATTEMPTS TO STEP INTO A WALL
 				return -10, False
-			elif board[x-1][y] == 'goal_resize.png':
+			elif board[x-1][y] == 'goal_resize.png':#IF AGENT FINDS GOAL
 				return 20, True
-			else:
+			else:# IF AGENT WALKS INTO FREE SPACE
 				self.position = (x-1,y)
 				return -1, False
-		
-
-	# def move_up():
-	# 	self.row -= 1
-	# def move_down():
-	# 	self.row += 1
-	# def move_right():
-	# 	self.col += 1
-	# def move_left():
-	# 	self.col -= 1

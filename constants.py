@@ -2,6 +2,9 @@ CELL_SIZE = 30
 IMG_PATH = 'img/'
 MAZE_PATH = 'Maze/'
 
+METRICS_CSV = 'model_metrics.csv'
+MODELHISTORY_CSV = 'model_histories.csv'
+METRIC_COLUMNS = 'learning_rate,epsilon,gamma,max_iters,optimal steps'
 
 AGENT_IMG_BASE_SRC = 'agent.png'
 WALL_IMG_BASE_SRC = 'wall.png'
@@ -17,4 +20,7 @@ EPSILON = .1
 LEARNING_RATE = .1
 GAMMA = .8
 
-TRAINING_RUNS = 100
+TRAINING_ITERATIONS = [1,10]
+PUNISHMENT = -10
+REWARD = 20
+FREE_MOVEMENT_PENALTY = -1
