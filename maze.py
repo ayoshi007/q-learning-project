@@ -20,14 +20,14 @@ class Maze:
 		done = False
 		steps = 0
 		while not done:
-			state = self.agent.get_state(self.board,self.goal)
+			state = self.agent.get_state(self.board)
 			if random.uniform(0,1) < EPSILON:
 				action = random.randint(0,3)
 			else:
 				action = np.argmax(self.agent.get_qtable()[state])
 			reward, done = self.agent.move(self.board,action)
 
-			new_state = self.agent.get_state(self.board,self.goal)
+			new_state = self.agent.get_state(self.board)
 			self.agent.table_update(state,action,reward,new_state)
 			steps = steps + 1
 		#print(self.agent.table_output())
@@ -38,14 +38,14 @@ class Maze:
 		done = False
 		steps = 0
 		while not done:
-			state = self.agent.get_state(self.board,self.goal)
+			state = self.agent.get_state(self.board)
 			if random.uniform(0,1) < EPSILON:
 				action = random.randint(0,3)
 			else:
 				action = np.argmax(self.agent.get_qtable()[state])
 			reward, done = self.agent.move(self.board,action)
 
-			new_state = self.agent.get_state(self.board,self.goal)
+			new_state = self.agent.get_state(self.board)
 			self.agent.table_update(state,action,reward,new_state)
 			steps = steps + 1
 		#print(self.agent.table_output())
