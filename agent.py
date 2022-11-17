@@ -42,10 +42,8 @@ class Agent:
 	#GAMMA: IS DISCOUNT FACTOR, TYPICALLY (.8 TO .99)
 	#UPDATES QTABLE
 	def table_update(self, old_pos: tuple, action: int, reward, new_pos: tuple):
-		update_val = self.learning_rate * (reward + self.gamma * np.max(self.q_table[new_pos[0]][new_pos[1]]))
-		self.q_table[old_pos[0]][old_pos[1]][action] += update_val
-		if abs(self.q_table[old_pos[0]][old_pos[1]][action]) > MAX_ABS_REWARD:
-			self.q_table[old_pos[0]][old_pos[1]][action] = MAX_ABS_REWARD if self.q_table[old_pos[0]][old_pos[1]][action] > 0 else -MAX_ABS_REWARD
+		delta = self.learning_rate * (reward + (self.gamma * np.max(self.q_table[new_pos[0]][new_pos[1]])) - self.q_table[old_pos[0]][old_pos[1]][action])
+		self.q_table[old_pos[0]][old_pos[1]][action] += delta
 
 	def q_train(self):
 		# perform max_iter episodes
@@ -56,6 +54,7 @@ class Agent:
 				print(f'LR: {self.learning_rate}, Eps: {self.epsilon}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
 			
 			steps = self.run_episode()
+			
 			if not self.show_gui:
 				print(steps)
 			
@@ -69,7 +68,7 @@ class Agent:
 		else:
 			print(f'LR: {self.learning_rate}, Eps: {self.epsilon}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test  Steps: ', end='')
 		
-		#self.epsilon = 0
+		self.epsilon = 0
 		steps = self.run_episode()
 		
 		if self.show_gui:
@@ -94,36 +93,31 @@ class Agent:
 			surroundings = self.maze.get_surroundings(old_pos[0], old_pos[1])
 			
 			actions = []
-			if surroundings[NORTH] != 'w':
-				actions.append(NORTH)
-			if surroundings[EAST] != 'w':
-				actions.append(EAST)
-			if surroundings[SOUTH] != 'w':
-				actions.append(SOUTH)
-			if surroundings[WEST] != 'w':
-				actions.append(WEST)
 			# explore
 			if random.uniform(0, 1) < self.epsilon:
-				action = random.choice(actions)
+				action = random.randint(0, 3)
 			# exploit
 			else:
-				best_actions = np.argsort(self.q_table[self.cur_pos[0]][self.cur_pos[1]])
-				while best_actions[-1] not in actions:
-					best_actions = best_actions[:-1]
-				
-				action = best_actions[-1]
+				action = np.argmax(self.q_table[self.cur_pos[0]][self.cur_pos[1]])
+			
 			#print(self.q_table)
+			valid = True
+			if surroundings[action] == 'w':
+				valid = False
 			
 			immediate_reward = self.maze.get_reward(old_pos[0], old_pos[1], action)
-			new_pos = self.get_new_pos(old_pos, action)
-				
+			new_pos = self.get_new_pos(old_pos, action, valid)
+			
 			self.table_update(old_pos, action, immediate_reward, new_pos)
 			
 			done = self.move(old_pos, new_pos)
 			steps += 1
 		return steps
 
-	def get_new_pos(self, old_pos: tuple, action: int) -> tuple:
+	def get_new_pos(self, old_pos: tuple, action: int, valid: bool) -> tuple:
+		if not valid:
+			return old_pos
+		
 		if action == NORTH:
 			return (old_pos[0] - 1, old_pos[1])
 		elif action == EAST:

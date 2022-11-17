@@ -1,6 +1,7 @@
 from game2dboard import Board
 from agent import Agent
 import numpy as np
+import pandas as pd
 import random
 from recording import record_metrics, record_modelhistory
 from constants import *
@@ -31,30 +32,30 @@ class Maze:
 				# if adjacent state is the goal, then reward is 500
 				# otherwise, i.e. adjacent state is an empty cell, reward is -1
 				if i == 0:
-					self.rewards[i][j][NORTH] = None
+					self.rewards[i][j][NORTH] = PUNISHMENT
 				elif self.board[i - 1][j] == WALL_IMG_RESIZE_SRC:
-					self.rewards[i][j][NORTH] = None
+					self.rewards[i][j][NORTH] = PUNISHMENT
 				elif self.board[i - 1][j] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][NORTH] = REWARD
 				
 				if i == self.board.nrows - 1:
-					self.rewards[i][j][SOUTH] = None
+					self.rewards[i][j][SOUTH] = PUNISHMENT
 				elif self.board[i + 1][j] == WALL_IMG_RESIZE_SRC:
-					self.rewards[i][j][SOUTH] = None
+					self.rewards[i][j][SOUTH] = PUNISHMENT
 				elif self.board[i + 1][j] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][SOUTH] = REWARD
 				
 				if j == 0:
-					self.rewards[i][j][WEST] = None
+					self.rewards[i][j][WEST] = PUNISHMENT
 				elif self.board[i][j - 1] == WALL_IMG_RESIZE_SRC:
-					self.rewards[i][j][WEST] = None
+					self.rewards[i][j][WEST] = PUNISHMENT
 				elif self.board[i][j - 1] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][WEST] = REWARD
 				
 				if j == self.board.ncols - 1:
-					self.rewards[i][j][EAST] = None
+					self.rewards[i][j][EAST] = PUNISHMENT
 				elif self.board[i][j + 1] == WALL_IMG_RESIZE_SRC:
-					self.rewards[i][j][EAST] = None
+					self.rewards[i][j][EAST] = PUNISHMENT
 				elif self.board[i][j + 1] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][EAST] = REWARD
 	
@@ -105,6 +106,7 @@ class Maze:
 		self.board[self.goal[0]][self.goal[1]] = GOAL_IMG_RESIZE_SRC
 	
 	def start(self, hyperparameters):
+		np.seterr('raise')
 		self.hyperparameters = hyperparameters
 		if self.show_gui:
 			self.board.on_start = self.run_hyperparameters
@@ -124,6 +126,10 @@ class Maze:
 			test_steps = self.agent.q_test()
 			record_metrics(learning_rate, epsilon, gamma, max_iter, test_steps)
 			record_modelhistory(self.agent.episode_steps)
+			
+			#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
+			#df.to_csv("qtable.csv")
+			
 			if self.show_gui:
 				time.sleep(1)
 			
