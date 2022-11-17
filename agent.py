@@ -35,8 +35,8 @@ class Agent:
 	#Q[STATE,ACTION] = Q[STATE,ACTION] + LEARNING_RATE * (REWARD + GAMMA * MAX(Q[NEW STATE])-Q[STATE,ACTION])
 	#GAMMA: IS DISCOUNT FACTOR, TYPICALLY (.8 TO .99)
 	#UPDATES QTABLE
-	def table_update(self,state,action,reward,new_state): 
-		self.q_table[state,action] = self.q_table[state,action] + LEARNING_RATE * (reward + GAMMA * np.max(self.q_table[new_state,:])-self.q_table[state,action])
+	def table_update(self,state,action,lr,gamma,reward,new_state): 
+		self.q_table[state,action] = self.q_table[state,action] + lr * (reward + gamma * np.max(self.q_table[new_state,:])-self.q_table[state,action])
 
 	#RESETS POSITION OF AGENT AFTER ONE RUN
 	def reset_position(self):

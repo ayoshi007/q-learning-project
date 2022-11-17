@@ -16,18 +16,18 @@ def init_csvs():
 	file.close()
 
 #FILLS OUR MODEL_METRICS
-def metric_creator(max_iters:tuple,test_steps:tuple):
+def metric_creator(lr:tuple,max_iters:tuple,gamma:tuple,epsilon:tuple,test_steps:tuple):
 	metrics_file = open(METRICS_CSV, 'a')
-	metrics_file.write(f'{LEARNING_RATE},{EPSILON},{GAMMA},{max_iters},{test_steps}')
+	metrics_file.write(f'{lr},{max_iters},{gamma},{epsilon},{test_steps}')
 	metrics_file.write('\n')
 	metrics_file.close()
 
 #PREFORMS REINFORMENT LEARNING AND TRACKS STEPS TAKEN PER ITERATIONS
-def reinforcement_learning(x:tuple):
+def reinforcement_learning(x:tuple,y:tuple,z:tuple,w:tuple):
 	training_list =[]
 	#RUNS AGENT FOR DESIGNATED TRAINING RUNS
-	for _ in range(x):
-		steps = board.agent_training()
+	for _ in range(y):
+		steps = board.agent_training(x,z,w)
 		training_list.append(steps)
 	modelhistory = open(MODELHISTORY_CSV,'a')
 	modelhistory_str = ','.join([str(x) for x in training_list])
@@ -35,8 +35,8 @@ def reinforcement_learning(x:tuple):
 	modelhistory.write('\n')
 	modelhistory.close()
 	modelhistory_str = None
-	test_steps = board.agent_test()
-	metric_creator(x,test_steps)
+	test_steps = board.agent_test(x,z,w)
+	metric_creator(x,y,z,w,test_steps)
 	
 	training_list = []
 
@@ -107,9 +107,11 @@ if __name__ == '__main__':
 	init_csvs()
 	board = maze_gen(MAZE_PATH + maze_file)
 	board.start()
-	for i in range(5):
-		for x in TRAINING_ITERATIONS:
-			reinforcement_learning(x)
+	for x in LEARNING_RATE:
+		for y in TRAINING_ITERATIONS:
+			for z in GAMMA:
+				for w in EPSILON:
+					reinforcement_learning(x,y,z,w)
 
 	#RUNS AGENT ONE LAST TIME TO EMPLOY UPDATED Q_TABLE.
 	#CURRENT RETURNS NUMBER OF STEPS AGENT THINKS IS OPTIMAL AFTER X TRAINING RUNS
