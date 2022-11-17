@@ -34,6 +34,41 @@ def main():
 def run_model(maze: Maze):
 	maze.start(product(learning_rates, epsilons, gammas, max_iters))
 
+#INITIALIZES OUR CSVS
+def init_csvs():
+	file = open(METRICS_CSV,'w')
+	file.write(METRIC_COLUMNS)
+	file.write('\n')
+	file.close()
+	file = open(MODELHISTORY_CSV, 'w')
+	file.close()
+
+#FILLS OUR MODEL_METRICS
+def metric_creator(max_iters:tuple,test_steps:tuple):
+	metrics_file = open(METRICS_CSV, 'a')
+	metrics_file.write(f'{LEARNING_RATE},{EPSILON},{GAMMA},{max_iters},{test_steps}')
+	metrics_file.write('\n')
+	metrics_file.close()
+
+#PREFORMS REINFORMENT LEARNING AND TRACKS STEPS TAKEN PER ITERATIONS
+def reinforcement_learning(x:tuple):
+	training_list =[]
+	#RUNS AGENT FOR DESIGNATED TRAINING RUNS
+	for _ in range(x):
+		steps = board.agent_training()
+		training_list.append(steps)
+	modelhistory = open(MODELHISTORY_CSV,'a')
+	modelhistory_str = ','.join([str(x) for x in training_list])
+	modelhistory.write(modelhistory_str)
+	modelhistory.write('\n')
+	modelhistory.close()
+	modelhistory_str = None
+	test_steps = board.agent_test()
+	metric_creator(x,test_steps)
+	
+	training_list = []
+
+
 #FILE PARSER PLUS MAZE GENERATION
 def maze_gen(file: str, show_gui: bool):
 	#LIST OF LISTS THAT WILL HOLD THE MAZE AFTER IT HAS BEEN PARSED BY THE PARSER
@@ -56,6 +91,7 @@ def maze_gen(file: str, show_gui: bool):
 	Image.open(IMG_PATH + WALL_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + WALL_IMG_RESIZE_SRC)
 	Image.open(IMG_PATH + GOAL_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + GOAL_IMG_RESIZE_SRC)
 	Image.open(IMG_PATH + AGENT_GOALIN_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + AGENT_GOALIN_IMG_RESIZE_SRC)
+	Image.open(IMG_PATH + HAZARD_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + HAZARD_IMG_RESIZE_SRC)
 
 	#VARIABLES TO ASSIST WITH CREATION OF MAZE GAMEBOARD
 	r=0
@@ -84,5 +120,4 @@ def maze_gen(file: str, show_gui: bool):
 
 if __name__ == '__main__':
 	main()
-	
 	

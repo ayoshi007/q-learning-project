@@ -132,5 +132,3 @@ class Maze:
 			
 			if self.show_gui:
 				time.sleep(1)
-			
-	
