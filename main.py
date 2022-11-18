@@ -9,10 +9,10 @@ from constants import *
 from itertools import product
 from recording import init_csvs
 
-learning_rates = [.5]#.01,.1,.5,1]
-epsilons = [.9]#.1,.5,.9] # exploit-explore 
-epsilon_decay = [0,1]
-learning_rate_decay = [0,1]
+learning_rates = [.01,.1,.5,1]
+epsilons = [.2,.5,.9] # exploit-explore 
+epsilon_decay = [False,True]
+learning_rate_decay = [False,True]
 epsilon_end = .1 # For Epsilon Decay
 gammas = [.9]#,.5,.3,.1] # discount factor
 max_iters = [300]
@@ -30,17 +30,13 @@ def main():
 		maze_file += '.txt'
 	init_csvs()
 	maze = maze_gen(MAZE_PATH + maze_file, show_gui)
-	run_model(maze,decay)
+	run_model(maze)
 	#RUNS AGENT ONE LAST TIME TO EMPLOY UPDATED Q_TABLE.
 	#CURRENT RETURNS NUMBER OF STEPS AGENT THINKS IS OPTIMAL AFTER X TRAINING RUNS
 	
 	
-def run_model(maze: Maze,decay:bool):
+def run_model(maze: Maze):
 	maze.start(product(learning_rates, epsilons, gammas, max_iters,epsilon_decay,learning_rate_decay),epsilon_end)
-	# if decay:
-	# 	maze.start(product(learning_rates, gammas, max_iters),epsilon_init,epsilon_end)
-	# else:
-	# 	maze.start(product(learning_rates, epsilons, gammas, max_iters),None,None)
 
 #FILE PARSER PLUS MAZE GENERATION
 def maze_gen(file: str, show_gui: bool):
