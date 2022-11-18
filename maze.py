@@ -105,15 +105,10 @@ class Maze:
 	def reset_goal(self):
 		self.board[self.goal[0]][self.goal[1]] = GOAL_IMG_RESIZE_SRC
 	
-	def start(self, hyperparameters, epsilon_init, epsilon_end):
+	def start(self, hyperparameters, epsilon_end):
 		np.seterr('raise')
 		self.hyperparameters = hyperparameters
-		self.epsilon_init = epsilon_init
 		self.epsilon_end = epsilon_end
-		if epsilon_init == None:
-			self.decay = False
-		else:
-			self.decay = True
 		if self.show_gui:
 			self.board.on_start = self.run_hyperparameters
 			self.board.show()
@@ -122,39 +117,23 @@ class Maze:
 	
 	def run_hyperparameters(self):
 		print("Starting hyperparameter runs")
-		if self.decay:
-			for learning_rate, gamma, max_iter in self.hyperparameters:
+		for learning_rate, epsilon,gamma, max_iter,epsilon_decay,lr_decay in self.hyperparameters:
+			for _ in range(10):
 				self.agent.reset_position()
 				self.agent.reset_table()
-				
-				self.agent.set_hyperparameters(learning_rate, self.epsilon_init,self.epsilon_end, gamma, max_iter)
+					
+				self.agent.set_hyperparameters(learning_rate,epsilon,self.epsilon_end, gamma, max_iter,epsilon_decay,lr_decay)
 				
 				self.agent.q_train()
-				test_steps = self.agent.q_test()
-				record_metrics(learning_rate, self.epsilon_init, gamma, max_iter, test_steps)
+				test_steps,test_reward = self.agent.q_test()
+				record_metrics(learning_rate,lr_decay, epsilon,epsilon_decay, gamma, max_iter, test_steps)
 				record_modelhistory(self.agent.episode_steps)
 				record_rewardhistory(self.agent.episode_rewards)
 				self.agent.episode_steps = []
 				self.agent.episode_rewards=[]
-					
-				#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
-				#df.to_csv("qtable.csv")
-					
-				if self.show_gui:
-					time.sleep(1)
-		else:
-			for learning_rate, epsilon, gamma, max_iter in self.hyperparameters:
-				self.agent.reset_position()
-				self.agent.reset_table()
-				self.agent.set_hyperparameters(learning_rate, epsilon, self.epsilon_end, gamma, max_iter)
-					
-				self.agent.q_train()
-				test_steps = self.agent.q_test()
-				record_metrics(learning_rate, epsilon, gamma, max_iter, test_steps)
-				record_modelhistory(self.agent.episode_steps)
-					
+						
 					#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
 					#df.to_csv("qtable.csv")
-					
+						
 				if self.show_gui:
 					time.sleep(1)

@@ -9,9 +9,10 @@ from constants import *
 from itertools import product
 from recording import init_csvs
 
-learning_rates = [.01,.1,.5,1]
-epsilons = [.1,.5,.9] # exploit-explore 
-epsilon_init = .9 # For Epsilon Decay
+learning_rates = [.5]#.01,.1,.5,1]
+epsilons = [.9]#.1,.5,.9] # exploit-explore 
+epsilon_decay = [0,1]
+learning_rate_decay = [0,1]
 epsilon_end = .1 # For Epsilon Decay
 gammas = [.9]#,.5,.3,.1] # discount factor
 max_iters = [300]
@@ -25,16 +26,8 @@ def main():
 	decay = False
 	if len(sys.argv) == 3 and (sys.argv[2] == '-q' or sys.argv[2] == '--quiet'):
 		show_gui = False
-	elif len(sys.argv) == 3 and (sys.argv[2] == '-d' or sys.argv[2] == '--decay'):
-		decay = True
 	if maze_file[-4:] != '.txt':
 		maze_file += '.txt'
-	if len(sys.argv) == 4 and (sys.argv[2] == '-q' or sys.argv[2] == '--quiet') and (sys.argv[3] == '-d' or sys.argv[3] == '--decay'):
-		show_gui = False
-		decay = True
-	elif len(sys.argv) == 4 and (sys.argv[2] == '-d' or sys.argv[2] == '--decay') and (sys.argv[3] == '-q' or sys.argv[3] == '--quiet'):
-		show_gui = False
-		decay = True
 	init_csvs()
 	maze = maze_gen(MAZE_PATH + maze_file, show_gui)
 	run_model(maze,decay)
@@ -43,10 +36,11 @@ def main():
 	
 	
 def run_model(maze: Maze,decay:bool):
-	if decay:
-		maze.start(product(learning_rates, gammas, max_iters),epsilon_init,epsilon_end)
-	else:
-		maze.start(product(learning_rates, epsilons, gammas, max_iters),None,None)
+	maze.start(product(learning_rates, epsilons, gammas, max_iters,epsilon_decay,learning_rate_decay),epsilon_end)
+	# if decay:
+	# 	maze.start(product(learning_rates, gammas, max_iters),epsilon_init,epsilon_end)
+	# else:
+	# 	maze.start(product(learning_rates, epsilons, gammas, max_iters),None,None)
 
 #FILE PARSER PLUS MAZE GENERATION
 def maze_gen(file: str, show_gui: bool):

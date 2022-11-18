@@ -21,19 +21,15 @@ class Agent:
 	# def get_history():
 	# 	return self.episode_steps
 	
-	def set_hyperparameters(self, learning_rate, epsilon_init, epsilon_end, gamma, max_iter):
+	def set_hyperparameters(self, learning_rate, epsilon, epsilon_end, gamma, max_iter,epsilon_decay:int,lr_decay:int):
 		self.learning_rate = learning_rate
-		self.epsilon_init = epsilon_init
-		self.cur_epsilon = epsilon_init
+		self.epsilon_init = epsilon
+		self.cur_epsilon = epsilon
 		self.epsilon_end = epsilon_end
-		
-		#FOR THE MOMENT IF DECAY IS OFF THEN EPSILON END WILL BE NONE
-		if self.epsilon_end == None:
-			self.decay = False
-		else:
-			self.decay = True
 		self.gamma = gamma
 		self.max_iter = max_iter
+		self.ep_delay = epsilon_decay
+		self.lr_decay = lr_decay
 
 	def epsilon_decay(self,i):
 		r = max(((self.max_iter-i)/self.max_iter),0)
@@ -70,8 +66,10 @@ class Agent:
 				print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
 			
 			steps,rewards = self.run_episode()
-			if self.decay:
+			
+			if self.ep_delay == 1:
 				self.epsilon_decay(i)
+			if self.lr_decay == 1:
 				self.learning_rate_decay(i)
 			if not self.show_gui:
 				print(steps)

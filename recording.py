@@ -12,9 +12,9 @@ def init_csvs():
 	file.close()
 
 #FILLS OUR MODEL_METRICS
-def record_metrics(learn_rate, epsilon, gamma, max_iter, test_steps):
+def record_metrics(learn_rate,lr_decay, epsilon,epsilon_decay, gamma, max_iter, test_steps):
 	metrics_file = open(METRICS_CSV, 'a')
-	metrics_file.write(f'{learn_rate},{epsilon},{gamma},{max_iter},{test_steps}')
+	metrics_file.write(f'{learn_rate},{lr_decay},{epsilon},{epsilon_decay},{gamma},{max_iter},{test_steps}')
 	metrics_file.write('\n')
 	metrics_file.close()
 
