@@ -9,22 +9,38 @@ class Agent:
 		self.start_pos = (starting_row, starting_col)
 		self.cur_pos = (starting_row, starting_col)
 		self.q_table = np.zeros((maze.board.nrows, maze.board.ncols, 4))
-		self.epsilon = None
+		self.cur_epsilon = None #EPISLON WAS RENAMED TO CUR EPSILON FOR EASY CHANGE BETWEEN DECAY AND NON DECAY
 		self.gamma = None
 		self.learning_rate = None
 		self.max_iter = None
 		self.show_gui = show_gui
 		
 		self.episode_steps = []
+		self.episode_rewards = []
 	
-	def get_history():
-		return self.episode_steps
+	# def get_history():
+	# 	return self.episode_steps
 	
-	def set_hyperparameters(self, learning_rate, epsilon, gamma, max_iter):
+	def set_hyperparameters(self, learning_rate, epsilon_init, epsilon_end, gamma, max_iter):
 		self.learning_rate = learning_rate
-		self.epsilon = epsilon
+		self.epsilon_init = epsilon_init
+		self.cur_epsilon = epsilon_init
+		self.epsilon_end = epsilon_end
+		
+		#FOR THE MOMENT IF DECAY IS OFF THEN EPSILON END WILL BE NONE
+		if self.epsilon_end == None:
+			self.decay = False
+		else:
+			self.decay = True
 		self.gamma = gamma
 		self.max_iter = max_iter
+
+	def epsilon_decay(self,i):
+		r = max(((self.max_iter-i)/self.max_iter),0)
+		self.cur_epsilon = (self.epsilon_init-self.epsilon_end)* r  + self.epsilon_end
+
+	def learning_rate_decay(self,i):
+		self.learning_rate = self.max_iter/(self.max_iter+i)
 
 	#RESETS QTABLE
 	def reset_table(self): 
@@ -49,27 +65,30 @@ class Agent:
 		# perform max_iter episodes
 		for i in range(self.max_iter):
 			if self.show_gui:
-				self.update_board_title(f'LR: {self.learning_rate}, Eps: {self.epsilon}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
+				self.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
 			else:
-				print(f'LR: {self.learning_rate}, Eps: {self.epsilon}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
+				print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
 			
-			steps = self.run_episode()
-			
+			steps,rewards = self.run_episode()
+			if self.decay:
+				self.epsilon_decay(i)
+				self.learning_rate_decay(i)
 			if not self.show_gui:
 				print(steps)
 			
 			self.episode_steps.append(steps)
+			self.episode_rewards.append(rewards)
 			self.reset_position()
 			
 	
 	def q_test(self) -> int:
 		if self.show_gui:
-			self.update_board_title(f'LR: {self.learning_rate}, Eps: {self.epsilon}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test')
+			self.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test')
 		else:
-			print(f'LR: {self.learning_rate}, Eps: {self.epsilon}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test  Steps: ', end='')
+			print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test  Steps: ', end='')
 		
-		self.epsilon = 0
-		steps = self.run_episode()
+		self.cur_epsilon = 0
+		steps,rewards = self.run_episode()
 		
 		if self.show_gui:
 			self.update_board_title(f"Final test steps: {steps}")
@@ -77,7 +96,7 @@ class Agent:
 			print(steps)
 			print()
 			
-		return steps
+		return steps,rewards
 	
 	def update_board_title(self, new_title: str):
 		self.maze.board.title = new_title
@@ -87,6 +106,7 @@ class Agent:
 	def run_episode(self):
 		done = False
 		steps = 0
+		reward = 0
 		# perform episode
 		while not done:
 			old_pos = self.cur_pos
@@ -94,7 +114,7 @@ class Agent:
 			
 			actions = []
 			# explore
-			if random.uniform(0, 1) < self.epsilon:
+			if random.uniform(0, 1) < self.cur_epsilon:
 				action = random.randint(0, 3)
 			# exploit
 			else:
@@ -106,13 +126,14 @@ class Agent:
 				valid = False
 			
 			immediate_reward = self.maze.get_reward(old_pos[0], old_pos[1], action)
+			reward += immediate_reward
 			new_pos = self.get_new_pos(old_pos, action, valid)
 			
 			self.table_update(old_pos, action, immediate_reward, new_pos)
 			
 			done = self.move(old_pos, new_pos)
 			steps += 1
-		return steps
+		return steps,reward
 
 	def get_new_pos(self, old_pos: tuple, action: int, valid: bool) -> tuple:
 		if not valid:

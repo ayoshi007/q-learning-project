@@ -8,6 +8,8 @@ def init_csvs():
 	file.close()
 	file = open(MODELHISTORY_CSV, 'w')
 	file.close()
+	file = open(REWARDHISTORY_CSV,'w')
+	file.close()
 
 #FILLS OUR MODEL_METRICS
 def record_metrics(learn_rate, epsilon, gamma, max_iter, test_steps):
@@ -22,4 +24,12 @@ def record_modelhistory(step_history):
 	modelhistory.write(modelhistory_str)
 	modelhistory.write('\n')
 	modelhistory.close()
-	
+	modelhistory = None
+
+def record_rewardhistory(reward_history):
+	rewardhistory = open(REWARDHISTORY_CSV,'a')
+	rewardhistory_str = ','.join([str(x) for x in reward_history])
+	rewardhistory.write(rewardhistory_str)
+	rewardhistory.write('\n')
+	rewardhistory.close()
+	rewardhistory = None

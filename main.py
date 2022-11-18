@@ -9,10 +9,12 @@ from constants import *
 from itertools import product
 from recording import init_csvs
 
-learning_rates = [.2]
-epsilons = [.15] # exploit-explore 
-gammas = [.9] # discount factor
-max_iters = [200]
+learning_rates = [.01,.1,.5,1]
+epsilons = [.1,.5,.9] # exploit-explore 
+epsilon_init = .9 # For Epsilon Decay
+epsilon_end = .1 # For Epsilon Decay
+gammas = [.9]#,.5,.3,.1] # discount factor
+max_iters = [300]
 
 def main():
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION
@@ -20,19 +22,31 @@ def main():
 		sys.exit("Usage: python maze.py <file with maze format>")
 	maze_file = sys.argv[1].upper()
 	show_gui = True
+	decay = False
 	if len(sys.argv) == 3 and (sys.argv[2] == '-q' or sys.argv[2] == '--quiet'):
 		show_gui = False
+	elif len(sys.argv) == 3 and (sys.argv[2] == '-d' or sys.argv[2] == '--decay'):
+		decay = True
 	if maze_file[-4:] != '.txt':
 		maze_file += '.txt'
+	if len(sys.argv) == 4 and (sys.argv[2] == '-q' or sys.argv[2] == '--quiet') and (sys.argv[3] == '-d' or sys.argv[3] == '--decay'):
+		show_gui = False
+		decay = True
+	elif len(sys.argv) == 4 and (sys.argv[2] == '-d' or sys.argv[2] == '--decay') and (sys.argv[3] == '-q' or sys.argv[3] == '--quiet'):
+		show_gui = False
+		decay = True
 	init_csvs()
 	maze = maze_gen(MAZE_PATH + maze_file, show_gui)
-	run_model(maze)
+	run_model(maze,decay)
 	#RUNS AGENT ONE LAST TIME TO EMPLOY UPDATED Q_TABLE.
 	#CURRENT RETURNS NUMBER OF STEPS AGENT THINKS IS OPTIMAL AFTER X TRAINING RUNS
 	
 	
-def run_model(maze: Maze):
-	maze.start(product(learning_rates, epsilons, gammas, max_iters))
+def run_model(maze: Maze,decay:bool):
+	if decay:
+		maze.start(product(learning_rates, gammas, max_iters),epsilon_init,epsilon_end)
+	else:
+		maze.start(product(learning_rates, epsilons, gammas, max_iters),None,None)
 
 #FILE PARSER PLUS MAZE GENERATION
 def maze_gen(file: str, show_gui: bool):
