@@ -16,7 +16,7 @@ random_training = [True] #, False]
 learning_rate_decay = [True] #, False]
 epsilon_end = [.01] # For Epsilon Decay
 gammas = [.9]#, .5, .3, .1] # discount factor
-max_iters = [100]#, 200, 300]
+max_iters = [50]#, 200, 300]
 repeats = 5
 
 def main():
