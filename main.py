@@ -17,7 +17,7 @@ learning_rate_decay = [True] #, False]
 epsilon_end = [.01] # For Epsilon Decay
 gammas = [.9]#, .5, .3, .1] # discount factor
 max_iters = [100]#, 200, 300]
-repeats = 1
+repeats = 5
 
 def main():
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION
@@ -29,15 +29,15 @@ def main():
 		show_gui = False
 	if maze_file[-4:] != '.txt':
 		maze_file += '.txt'
-	init_csvs()
 	maze = maze_gen(MAZE_PATH + maze_file, show_gui)
+	init_csvs(len(maze.testing_spots))
 	run_model(maze)
 	#RUNS AGENT ONE LAST TIME TO EMPLOY UPDATED Q_TABLE.
 	#CURRENT RETURNS NUMBER OF STEPS AGENT THINKS IS OPTIMAL AFTER X TRAINING RUNS
 	
 
 def run_model(maze: Maze):
-	hyperparam_combos = product(random_training, learning_rates, epsilons, epsilon_end, gammas, max_iters,epsilon_decay, learning_rate_decay)
+	hyperparam_combos = product(random_training, learning_rates, epsilons, epsilon_end, gammas, max_iters, epsilon_decay, learning_rate_decay)
 	maze.start(hyperparam_combos, repeats)
 
 #FILE PARSER PLUS MAZE GENERATION

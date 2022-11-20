@@ -2,8 +2,6 @@ CELL_SIZE = 30
 IMG_PATH = 'img/'
 MAZE_PATH = 'Maze/'
 
-METRIC_COLUMNS = 'maze_number,random_training,learning_rate,lr_decay,epsilon,epsilon_end,epsilon_decay,gamma,max_iters,test1_steps,test2_steps,test3_steps,test4_steps,test1_reward_sum,test2_reward_sum,test3_reward_sum,test4_reward_sum,test_step_sum,test_reward_sum,train_step_average,train_reward_average'
-
 AGENT_IMG_BASE_SRC = 'agent.png'
 WALL_IMG_BASE_SRC = 'wall.png'
 GOAL_IMG_BASE_SRC = 'goal.png'
@@ -29,4 +27,4 @@ EAST = 1
 SOUTH = 2
 WEST = 3
 
-SLEEP = 0.00001
+SLEEP = 0

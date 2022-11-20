@@ -87,6 +87,11 @@ class Maze:
 		
 		self.board._root.update()
 	
+	def update_board_title(self, new_title: str):
+		self.maze.board.title = new_title
+		self.maze.reset_goal()
+		self.maze.board._root.update()
+	
 	# used by agent to get immediate surroundings, which are a part of the agent's state
 	def get_surroundings(self, r, c) -> tuple:
 		surroundings = ['f', 'f', 'f', 'f']
@@ -176,4 +181,7 @@ class Maze:
 						
 				#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
 				#df.to_csv("qtable.csv")
+		
+		self.update_board_title('Done')
+		
 				

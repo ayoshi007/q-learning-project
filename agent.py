@@ -74,9 +74,10 @@ class Agent:
 				
 			if self.random_training:
 				self.move(self.cur_pos, random.choice(random_locations))
-				
+			
+
 			if self.show_gui:
-				self.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
+				self.maze.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
 			else:
 				print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
 			
@@ -96,7 +97,7 @@ class Agent:
 		lr_init = 1 if self.lr_decay else self.learning_rate
 		
 		if self.show_gui:
-			self.update_board_title(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number}')
+			self.maze.update_board_title(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number}')
 		else:
 			print(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): ', end='')
 		
@@ -105,16 +106,13 @@ class Agent:
 		self.q_table = pretest_q_table
 		
 		if self.show_gui:
-			self.update_board_title(f'Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): steps {steps}, reward {rewards}')
+			self.maze.update_board_title(f'Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): steps {steps}, reward {rewards}')
 		else:
 			print(f'steps {steps}, reward {rewards}')
 			
 		return steps,rewards
 	
-	def update_board_title(self, new_title: str):
-		self.maze.board.title = new_title
-		self.maze.reset_goal()
-		self.maze.board._root.update()
+
 	
 	def run_episode(self):
 		done = False
