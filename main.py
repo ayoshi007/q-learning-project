@@ -9,15 +9,15 @@ from constants import *
 from itertools import product
 from recording import init_csvs
 
-learning_rates = [.1,.5,.9]
-epsilons = [.2,.5,.9] # exploit-explore 
-epsilon_decay = [False,True]
-random_training = [False,True]
-learning_rate_decay = [False,True]
-epsilon_end = .1 # For Epsilon Decay
-gammas = [.9,.5,.3,.1] # discount factor
-max_iters = [100,200,300]
-random_training_locations= [True,False]
+learning_rates = [.1]#, .5, .9]
+epsilons = [.2]#, .5, .9] # exploit-explore 
+epsilon_decay = [True] #, False]
+random_training = [True] #, False]
+learning_rate_decay = [True] #, False]
+epsilon_end = [.01] # For Epsilon Decay
+gammas = [.9]#, .5, .3, .1] # discount factor
+max_iters = [100]#, 200, 300]
+repeats = 1
 
 def main():
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION
@@ -30,14 +30,15 @@ def main():
 	if maze_file[-4:] != '.txt':
 		maze_file += '.txt'
 	init_csvs()
-	maze,testing_spots,random_spots = maze_gen(MAZE_PATH + maze_file, show_gui)
-	run_model(maze,maze_file,testing_spots,random_spots)
+	maze = maze_gen(MAZE_PATH + maze_file, show_gui)
+	run_model(maze)
 	#RUNS AGENT ONE LAST TIME TO EMPLOY UPDATED Q_TABLE.
 	#CURRENT RETURNS NUMBER OF STEPS AGENT THINKS IS OPTIMAL AFTER X TRAINING RUNS
 	
-	
-def run_model(maze: Maze,maze_file,testing_spots,random_spots):
-	maze.start(product(random_training_locations,learning_rates, epsilons, gammas, max_iters,epsilon_decay,learning_rate_decay),epsilon_end,maze_file[0:5],testing_spots,random_spots)
+
+def run_model(maze: Maze):
+	hyperparam_combos = product(random_training, learning_rates, epsilons, epsilon_end, gammas, max_iters,epsilon_decay, learning_rate_decay)
+	maze.start(hyperparam_combos, repeats)
 
 #FILE PARSER PLUS MAZE GENERATION
 def maze_gen(file: str, show_gui: bool):
@@ -62,6 +63,7 @@ def maze_gen(file: str, show_gui: bool):
 	Image.open(IMG_PATH + GOAL_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + GOAL_IMG_RESIZE_SRC)
 	Image.open(IMG_PATH + AGENT_GOALIN_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + AGENT_GOALIN_IMG_RESIZE_SRC)
 	Image.open(IMG_PATH + HAZARD_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + HAZARD_IMG_RESIZE_SRC)
+	Image.open(IMG_PATH + AGENT_IN_HAZARD_IMG_BASE_SRC).resize((CELL_SIZE, CELL_SIZE)).save(IMG_PATH + AGENT_IN_HAZARD_IMG_RESIZE_SRC)
 
 	#VARIABLES TO ASSIST WITH CREATION OF MAZE GAMEBOARD
 	r=0
@@ -88,7 +90,7 @@ def maze_gen(file: str, show_gui: bool):
 			elif col == "s":
 				testing_spawn_points.append((r,c))
 				random_training_locations.append((r,c))
-			elif col =="g":
+			elif col == "g":
 				goal = (r, c)
 				b[r][c] = GOAL_IMG_RESIZE_SRC
 			c+=1
@@ -96,7 +98,7 @@ def maze_gen(file: str, show_gui: bool):
 		c=0
 	if not agent or not goal:
 		sys.exit("No agent or goal found in maze")
-	return Maze(b, agent, goal, show_gui),testing_spawn_points,random_training_locations
+	return Maze(file[len(MAZE_PATH):-4], b, agent, goal, random_training_locations, testing_spawn_points, show_gui)
 
 if __name__ == '__main__':
 	main()

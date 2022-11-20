@@ -4,7 +4,7 @@ import random
 from constants import *
 
 class Agent:
-	def __init__(self, maze, show_gui, starting_row=0, starting_col=0):
+	def __init__(self, maze, show_gui: bool, starting_row=0, starting_col=0):
 		self.maze = maze
 		self.start_pos = (starting_row, starting_col)
 		self.cur_pos = (starting_row, starting_col)
@@ -39,11 +39,13 @@ class Agent:
 		self.cur_epsilon = (self.epsilon_init - self.epsilon_end) * ((self.max_iter - 1 - i) / (self.max_iter - 1)) + self.epsilon_end
 
 	def learning_rate_decay(self,i):
-		self.learning_rate = self.max_iter/(self.max_iter+i)
+		self.learning_rate = self.max_iter/(self.max_iter + i)
 
 	#RESETS QTABLE
 	def reset_table(self): 
 		self.q_table = np.zeros((self.maze.board.nrows, self.maze.board.ncols, 4))
+		self.episode_steps = []
+		self.episode_rewards = []
 
 	#RETURNS QTABLE
 	def get_qtable(self):
@@ -65,8 +67,14 @@ class Agent:
 		# perform max_iter episodes
 		
 		for i in range(self.max_iter):
+			if self.ep_decay:
+				self.epsilon_decay(i)
+			if self.lr_decay:
+				self.learning_rate_decay(i)
+				
 			if self.random_training:
-				self.cur_pos = random.choice(random_locations)
+				self.move(self.cur_pos, random.choice(random_locations))
+				
 			if self.show_gui:
 				self.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
 			else:
@@ -74,10 +82,6 @@ class Agent:
 			
 			steps,rewards = self.run_episode()
 			
-			if self.ep_decay:
-				self.epsilon_decay(i)
-			if self.lr_decay:
-				self.learning_rate_decay(i)
 			if not self.show_gui:
 				print(steps)
 			
@@ -86,20 +90,24 @@ class Agent:
 			self.reset_position()
 			
 	
-	def q_test(self,test_location) -> int:
+	def q_test(self, test_number, test_location) -> int:
 		self.cur_epsilon = 0
 		self.cur_pos = test_location
-		if self.show_gui:
-			self.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test')
-		else:
-			print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test  Steps: ', end='')
-		
-		steps,rewards = self.run_episode()
+		lr_init = 1 if self.lr_decay else self.learning_rate
 		
 		if self.show_gui:
-			self.update_board_title(f"Final test steps: {steps}")
+			self.update_board_title(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number}')
 		else:
-			print(steps)
+			print(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): ', end='')
+		
+		pretest_q_table = self.q_table
+		steps, rewards = self.run_episode()
+		self.q_table = pretest_q_table
+		
+		if self.show_gui:
+			self.update_board_title(f'Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): steps {steps}, reward {rewards}')
+		else:
+			print(f'steps {steps}, reward {rewards}')
 			
 		return steps,rewards
 	

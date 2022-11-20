@@ -8,14 +8,18 @@ from constants import *
 import time
 
 class Maze:
-	def __init__(self, board: Board, agent: tuple, goal: tuple, show_gui=True):
+	def __init__(self, maze_name: str, board: Board, agent: tuple, goal: tuple, random_spots, testing_spots, show_gui=True):
+		self.maze_name = maze_name
 		self.board = board
 		self.agent = Agent(self, show_gui, agent[0], agent[1])
 		self.goal = goal
+		
+		self.random_spots = random_spots
+		self.testing_spots = testing_spots	
 		self.show_gui = show_gui
+		
 		# rewards is the reward given to the agent in each state, per its 4 possible actions
 		self.rewards = np.ndarray((board.nrows, board.ncols, 4))
-		
 		self.init_rewards()
 	
 	# initialize the immediate rewards 2d array
@@ -70,9 +74,14 @@ class Maze:
 	# update agent's position and the GUI
 	def update_agent_gui(self, old_pos, new_pos):
 		time.sleep(SLEEP)
-		self.board[old_pos[0]][old_pos[1]] = None
+		if self.board[old_pos[0]][old_pos[1]] == AGENT_IN_HAZARD_IMG_RESIZE_SRC:
+			self.board[old_pos[0]][old_pos[1]] = HAZARD_IMG_RESIZE_SRC
+		else:
+			self.board[old_pos[0]][old_pos[1]] = None
 		if new_pos == self.goal:
 			self.board[new_pos[0]][new_pos[1]] = AGENT_GOALIN_IMG_RESIZE_SRC
+		elif self.board[new_pos[0]][new_pos[1]] == HAZARD_IMG_RESIZE_SRC:
+			self.board[new_pos[0]][new_pos[1]] = AGENT_IN_HAZARD_IMG_RESIZE_SRC
 		else:
 			self.board[new_pos[0]][new_pos[1]] = AGENT_IMG_RESIZE_SRC
 		
@@ -121,13 +130,11 @@ class Maze:
 	def reset_goal(self):
 		self.board[self.goal[0]][self.goal[1]] = GOAL_IMG_RESIZE_SRC
 	
-	def start(self, hyperparameters, epsilon_end,maze_file,testing_spots,random_spots):
+	def start(self, hyperparameters, repeats):
 		np.seterr('raise')
 		self.hyperparameters = hyperparameters
-		self.epsilon_end = epsilon_end
-		self.maze_file = maze_file
-		self.testing_spots = testing_spots
-		self.random_spots = random_spots
+		self.repeats = repeats
+		
 		if self.show_gui:
 			self.board.on_start = self.run_hyperparameters
 			self.board.show()
@@ -138,30 +145,35 @@ class Maze:
 		test_steps = []
 		test_reward = []
 		print("Starting hyperparameter runs")
-		for random_training,learning_rate, epsilon,gamma, max_iter,epsilon_decay,lr_decay in self.hyperparameters:
-			for _ in range(10):
+		for random_training, learning_rate, epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay in self.hyperparameters:
+			for _ in range(self.repeats):
 				self.agent.reset_position()
 				self.agent.reset_table()
-					
-				self.agent.set_hyperparameters(learning_rate,epsilon,self.epsilon_end, gamma, max_iter,epsilon_decay,lr_decay,random_training)
+				
+				self.agent.set_hyperparameters(learning_rate,epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay, random_training)
 				
 				self.agent.q_train(self.random_spots)
+				
 				print()
-				for x in self.testing_spots:
-					s,r = self.agent.q_test(x)
+				for i, x in enumerate(self.testing_spots):
+					s, r = self.agent.q_test(i + 1, x)
 					test_steps.append(s)
 					test_reward.append(r)
+						
+					if self.show_gui:
+						time.sleep(1)
 				print()
-				record_metrics(self.maze_file,random_training,learning_rate,lr_decay, epsilon,self.epsilon_end,epsilon_decay, gamma, max_iter, test_steps,test_reward,(sum(self.agent.episode_steps)/max_iter),(sum(self.agent.episode_rewards)/max_iter))
+				
+				avrg_training_steps = sum(self.agent.episode_steps) / max_iter
+				avrg_training_reward = sum(self.agent.episode_rewards) / max_iter
+				
+				record_metrics(self.maze_name, random_training, learning_rate, lr_decay, epsilon, epsilon_end, epsilon_decay, gamma, max_iter, test_steps,test_reward, avrg_training_steps, avrg_training_reward)
 				record_modelhistory(self.agent.episode_steps)
 				record_rewardhistory(self.agent.episode_rewards)
+				
 				test_steps = []
 				test_reward = []
-				self.agent.episode_steps = []
-				self.agent.episode_rewards=[]
 						
-					#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
-					#df.to_csv("qtable.csv")
-						
-				if self.show_gui:
-					time.sleep(1)
+				#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
+				#df.to_csv("qtable.csv")
+				
