@@ -35,6 +35,8 @@ class Maze:
 					self.rewards[i][j][NORTH] = PUNISHMENT
 				elif self.board[i - 1][j] == WALL_IMG_RESIZE_SRC:
 					self.rewards[i][j][NORTH] = PUNISHMENT
+				elif self.board[i - 1][j] == HAZARD_IMG_RESIZE_SRC:
+					self.rewards[i][j][NORTH] = HAZARD_PUNISHMENT
 				elif self.board[i - 1][j] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][NORTH] = REWARD
 				
@@ -42,6 +44,8 @@ class Maze:
 					self.rewards[i][j][SOUTH] = PUNISHMENT
 				elif self.board[i + 1][j] == WALL_IMG_RESIZE_SRC:
 					self.rewards[i][j][SOUTH] = PUNISHMENT
+				elif self.board[i + 1][j] == HAZARD_IMG_RESIZE_SRC:
+					self.rewards[i][j][SOUTH] = HAZARD_PUNISHMENT
 				elif self.board[i + 1][j] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][SOUTH] = REWARD
 				
@@ -49,6 +53,8 @@ class Maze:
 					self.rewards[i][j][WEST] = PUNISHMENT
 				elif self.board[i][j - 1] == WALL_IMG_RESIZE_SRC:
 					self.rewards[i][j][WEST] = PUNISHMENT
+				elif self.board[i][j - 1] == HAZARD_IMG_RESIZE_SRC:
+					self.rewards[i][j][WEST] = HAZARD_PUNISHMENT
 				elif self.board[i][j - 1] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][WEST] = REWARD
 				
@@ -56,6 +62,8 @@ class Maze:
 					self.rewards[i][j][EAST] = PUNISHMENT
 				elif self.board[i][j + 1] == WALL_IMG_RESIZE_SRC:
 					self.rewards[i][j][EAST] = PUNISHMENT
+				elif self.board[i][j + 1] == HAZARD_IMG_RESIZE_SRC:
+					self.rewards[i][j+1][EAST] = HAZARD_PUNISHMENT
 				elif self.board[i][j + 1] == GOAL_IMG_RESIZE_SRC:
 					self.rewards[i][j][EAST] = REWARD
 	
@@ -76,21 +84,29 @@ class Maze:
 		
 		if r == 0 or self.board[r - 1][c] == WALL_IMG_RESIZE_SRC:
 			surroundings[NORTH] = 'w'
+		elif self.board[r - 1][c] == HAZARD_IMG_RESIZE_SRC:
+			surroundings[NORTH] = 'h'
 		elif self.board[r - 1][c] == GOAL_IMG_RESIZE_SRC:
 			surroundings[NORTH] = 'g'
 			
 		if r == self.board.nrows - 1 or self.board[r + 1][c] == WALL_IMG_RESIZE_SRC:
 			surroundings[SOUTH] = 'w'
-		elif self.board[r - 1][c] == GOAL_IMG_RESIZE_SRC:
-			surroundings[NORTH] = 'g'
+		elif self.board[r + 1][c] == HAZARD_IMG_RESIZE_SRC:
+			surroundings[SOUTH] = 'h'
+		elif self.board[r + 1][c] == GOAL_IMG_RESIZE_SRC:
+			surroundings[SOUTH] = 'g'
 			
 		if c == 0 or self.board[r][c - 1] == WALL_IMG_RESIZE_SRC:
 			surroundings[WEST] = 'w'
+		elif self.board[r][c - 1] == HAZARD_IMG_RESIZE_SRC:
+			surroundings[WEST] = 'h'
 		elif self.board[r][c - 1] == GOAL_IMG_RESIZE_SRC:
 			surroundings[WEST] = 'g'
 			
 		if c == self.board.ncols - 1 or self.board[r][c + 1] == WALL_IMG_RESIZE_SRC:
 			surroundings[EAST] = 'w'
+		elif self.board[r][c + 1] == HAZARD_IMG_RESIZE_SRC:
+			surroundings[EAST] = 'h'
 		elif self.board[r][c + 1] == GOAL_IMG_RESIZE_SRC:
 			surroundings[EAST] = 'g'
 		
@@ -105,10 +121,13 @@ class Maze:
 	def reset_goal(self):
 		self.board[self.goal[0]][self.goal[1]] = GOAL_IMG_RESIZE_SRC
 	
-	def start(self, hyperparameters, epsilon_end):
+	def start(self, hyperparameters, epsilon_end,maze_file,testing_spots,random_spots):
 		np.seterr('raise')
 		self.hyperparameters = hyperparameters
 		self.epsilon_end = epsilon_end
+		self.maze_file = maze_file
+		self.testing_spots = testing_spots
+		self.random_spots = random_spots
 		if self.show_gui:
 			self.board.on_start = self.run_hyperparameters
 			self.board.show()
@@ -116,19 +135,28 @@ class Maze:
 			self.run_hyperparameters()
 	
 	def run_hyperparameters(self):
+		test_steps = []
+		test_reward = []
 		print("Starting hyperparameter runs")
-		for learning_rate, epsilon,gamma, max_iter,epsilon_decay,lr_decay in self.hyperparameters:
-			for _ in range(10):
+		for random_training,learning_rate, epsilon,gamma, max_iter,epsilon_decay,lr_decay in self.hyperparameters:
+			for _ in range(1):#10):
 				self.agent.reset_position()
 				self.agent.reset_table()
 					
-				self.agent.set_hyperparameters(learning_rate,epsilon,self.epsilon_end, gamma, max_iter,epsilon_decay,lr_decay)
+				self.agent.set_hyperparameters(learning_rate,epsilon,self.epsilon_end, gamma, max_iter,epsilon_decay,lr_decay,random_training)
 				
-				self.agent.q_train()
-				test_steps,test_reward = self.agent.q_test()
-				record_metrics(learning_rate,lr_decay, epsilon,epsilon_decay, gamma, max_iter, test_steps)
+				self.agent.q_train(self.random_spots)
+				print()
+				for x in self.testing_spots:
+					s,r = self.agent.q_test(x)
+					test_steps.append(s)
+					test_reward.append(r)
+				print()
+				record_metrics(self.maze_file,random_training,learning_rate,lr_decay, epsilon,self.epsilon_end,epsilon_decay, gamma, max_iter, test_steps,test_reward,(sum(self.agent.episode_steps)/max_iter),(sum(self.agent.episode_rewards)/max_iter))
 				record_modelhistory(self.agent.episode_steps)
 				record_rewardhistory(self.agent.episode_rewards)
+				test_steps = []
+				test_reward = []
 				self.agent.episode_steps = []
 				self.agent.episode_rewards=[]
 						

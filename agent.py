@@ -21,7 +21,7 @@ class Agent:
 	# def get_history():
 	# 	return self.episode_steps
 	
-	def set_hyperparameters(self, learning_rate, epsilon, epsilon_end, gamma, max_iter,epsilon_decay:bool,lr_decay:bool):
+	def set_hyperparameters(self, learning_rate, epsilon, epsilon_end, gamma, max_iter,epsilon_decay:bool,lr_decay:bool,random_training:bool):
 		self.learning_rate = learning_rate
 		self.epsilon_init = epsilon
 		self.cur_epsilon = epsilon
@@ -30,12 +30,13 @@ class Agent:
 		self.max_iter = max_iter
 		self.ep_decay = epsilon_decay
 		self.lr_decay = lr_decay
+		self.random_training = random_training
+
 		if self.lr_decay:
 			self.learning_rate = 1
 
 	def epsilon_decay(self,i):
-		r = max(((self.max_iter-i)/self.max_iter),0)
-		self.cur_epsilon = (self.epsilon_init-self.epsilon_end)* r  + self.epsilon_end
+		self.cur_epsilon = (self.epsilon_init - self.epsilon_end) * ((self.max_iter - 1 - i) / (self.max_iter - 1)) + self.epsilon_end
 
 	def learning_rate_decay(self,i):
 		self.learning_rate = self.max_iter/(self.max_iter+i)
@@ -59,9 +60,13 @@ class Agent:
 		delta = self.learning_rate * (reward + (self.gamma * np.max(self.q_table[new_pos[0]][new_pos[1]])) - self.q_table[old_pos[0]][old_pos[1]][action])
 		self.q_table[old_pos[0]][old_pos[1]][action] += delta
 
-	def q_train(self):
+	def q_train(self,random_locations):
+		
 		# perform max_iter episodes
+		
 		for i in range(self.max_iter):
+			if self.random_training:
+				self.cur_pos = random.choice(random_locations)
 			if self.show_gui:
 				self.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
 			else:
@@ -81,20 +86,20 @@ class Agent:
 			self.reset_position()
 			
 	
-	def q_test(self) -> int:
+	def q_test(self,test_location) -> int:
+		self.cur_epsilon = 0
+		self.cur_pos = test_location
 		if self.show_gui:
 			self.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test')
 		else:
 			print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test  Steps: ', end='')
 		
-		self.cur_epsilon = 0
 		steps,rewards = self.run_episode()
 		
 		if self.show_gui:
 			self.update_board_title(f"Final test steps: {steps}")
 		else:
 			print(steps)
-			print()
 			
 		return steps,rewards
 	
