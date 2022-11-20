@@ -1,4 +1,11 @@
 from constants import *
+from datetime import datetime
+
+now = datetime.now()
+datetimestamp = f'{now.date()}_{now.hour:02}-{now.minute:02}-{now.second:02}'
+METRICS_CSV = f'model_metrics_{datetimestamp}.csv'
+MODELHISTORY_CSV = f'model_histories_{datetimestamp}.csv'
+REWARDHISTORY_CSV = f'reward_histories_{datetimestamp}.csv'
 
 #INITIALIZES OUR CSVS
 def init_csvs():
