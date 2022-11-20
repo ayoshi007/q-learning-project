@@ -139,7 +139,7 @@ class Maze:
 		test_reward = []
 		print("Starting hyperparameter runs")
 		for random_training,learning_rate, epsilon,gamma, max_iter,epsilon_decay,lr_decay in self.hyperparameters:
-			for _ in range(1):#10):
+			for _ in range(10):
 				self.agent.reset_position()
 				self.agent.reset_table()
 					
