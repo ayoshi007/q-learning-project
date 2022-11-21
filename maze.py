@@ -8,11 +8,11 @@ from constants import *
 import time
 
 class Maze:
-	def __init__(self, maze_name: str, board: Board, agent: tuple, goal: tuple, random_spots, testing_spots, show_gui=True):
+	def __init__(self, maze_name: str, board: Board, agent: tuple, goals: set, random_spots, testing_spots, show_gui=True):
 		self.maze_name = maze_name
 		self.board = board
 		self.agent = Agent(self, show_gui, agent[0], agent[1])
-		self.goal = goal
+		self.goals = goals
 		
 		self.random_spots = random_spots
 		self.testing_spots = testing_spots	
@@ -74,11 +74,18 @@ class Maze:
 	# update agent's position and the GUI
 	def update_agent_gui(self, old_pos, new_pos):
 		time.sleep(SLEEP)
-		if self.board[old_pos[0]][old_pos[1]] == AGENT_IN_HAZARD_IMG_RESIZE_SRC:
+		if old_pos == new_pos:
+			return
+		
+		if old_pos in self.goals:
+			self.board[old_pos[0]][old_pos[1]] = GOAL_IMG_RESIZE_SRC
+		elif self.board[old_pos[0]][old_pos[1]] == AGENT_IN_HAZARD_IMG_RESIZE_SRC:
 			self.board[old_pos[0]][old_pos[1]] = HAZARD_IMG_RESIZE_SRC
 		else:
 			self.board[old_pos[0]][old_pos[1]] = None
-		if new_pos == self.goal:
+		
+		
+		if new_pos in self.goals:
 			self.board[new_pos[0]][new_pos[1]] = AGENT_GOALIN_IMG_RESIZE_SRC
 		elif self.board[new_pos[0]][new_pos[1]] == HAZARD_IMG_RESIZE_SRC:
 			self.board[new_pos[0]][new_pos[1]] = AGENT_IN_HAZARD_IMG_RESIZE_SRC
@@ -89,7 +96,6 @@ class Maze:
 	
 	def update_board_title(self, new_title: str):
 		self.board.title = new_title
-		self.reset_goal()
 		self.board._root.update()
 	
 	# used by agent to get immediate surroundings, which are a part of the agent's state
@@ -130,15 +136,17 @@ class Maze:
 		return self.rewards[r][c][action]
 	
 	def is_goal(self, r, c):
-		return self.goal == (r, c)
+		return (r, c) in self.goals
 	
-	def reset_goal(self):
-		self.board[self.goal[0]][self.goal[1]] = GOAL_IMG_RESIZE_SRC
+	def reset_goals(self):
+		for goal in self.goals:
+			self.board[goal[0]][goal[1]] = GOAL_IMG_RESIZE_SRC
 	
-	def start(self, hyperparameters, repeats):
+	def start(self, hyperparameters, repeats, total_runs):
 		np.seterr('raise')
 		self.hyperparameters = hyperparameters
 		self.repeats = repeats
+		self.total_runs = total_runs
 		
 		if self.show_gui:
 			self.board.on_start = self.run_hyperparameters
@@ -150,9 +158,12 @@ class Maze:
 		test_steps = []
 		test_reward = []
 		test_cr = []
-		print("Starting hyperparameter runs")
-		for random_training, learning_rate, epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay in self.hyperparameters:
+		self.run_number = 1
+		print(f"Starting {self.total_runs} hyperparameter runs")
+		
+		for learning_rate, epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay, random_training in self.hyperparameters:
 			for _ in range(self.repeats):
+				print(f'Run {self.run_number}/{self.total_runs}');
 				self.agent.reset_position()
 				self.agent.reset_table()
 				
@@ -163,15 +174,16 @@ class Maze:
 				avrg_training_steps = sum(self.agent.episode_steps) / max_iter
 				avrg_training_reward = sum(self.agent.episode_rewards) / max_iter
 				
-				hard_limit = int(avrg_training_steps*2)
+				hard_limit = int(avrg_training_steps * 2)
 
 				print()
-				for i, x in enumerate(self.testing_spots):
-					s, r, cr = self.agent.q_test(i + 1, x, hard_limit)
+				for i, test_start in enumerate(self.testing_spots):
+					self.reset_goals()
+					s, r, cr = self.agent.q_test(i + 1, test_start, hard_limit)
 					test_steps.append(s)
 					test_reward.append(r)
 					test_cr.append(cr)
-						
+					
 					if self.show_gui:
 						time.sleep(1)
 				print()
@@ -187,6 +199,7 @@ class Maze:
 						
 				#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
 				#df.to_csv("qtable.csv")
+				self.run_number += 1
 		
 		self.update_board_title('Done')
 		

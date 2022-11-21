@@ -77,10 +77,10 @@ class Agent:
 			
 
 			if self.show_gui:
-				self.maze.update_board_title(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
+				self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
 			else:
 				print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
-			
+			self.maze.reset_goals()
 			steps,rewards,cr = self.run_episode()
 			
 			if not self.show_gui:
@@ -91,27 +91,27 @@ class Agent:
 			self.reset_position()
 			
 	
-	def q_test(self, test_number, test_location,limit) -> int:
+	def q_test(self, test_number, test_location, limit) -> int:
 		self.cur_epsilon = 0
-		self.cur_pos = test_location
+		self.move(self.cur_pos, test_location)
 		self.limit = limit
 		lr_init = 1 if self.lr_decay else self.learning_rate
 		
 		if self.show_gui:
-			self.maze.update_board_title(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number}')
+			self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number}')
 		else:
 			print(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): ', end='')
 		
 		pretest_q_table = self.q_table
-		steps, rewards,cr = self.run_episode()
+		steps, rewards, cr = self.run_episode()
 		self.q_table = pretest_q_table
 		
 		if self.show_gui:
-			self.maze.update_board_title(f'Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): Goal found: {cr}, steps {steps}, reward {rewards}')
+			self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) Final test {test_number}, start_loc ({test_location[0]}, {test_location[1]}): {"Goal found" if cr else "No goal"}, steps {steps}, reward {rewards}')
 		else:
 			print(f' Goal found: {cr}, steps {steps}, reward {rewards}')
 			
-		return steps,rewards,cr
+		return steps, rewards, cr
 	
 
 	
@@ -134,9 +134,7 @@ class Agent:
 				action = np.argmax(self.q_table[self.cur_pos[0]][self.cur_pos[1]])
 			
 			#print(self.q_table)
-			valid = True
-			if surroundings[action] == 'w':
-				valid = False
+			valid = False if surroundings[action] == 'w' else True
 			
 			immediate_reward = self.maze.get_reward(old_pos[0], old_pos[1], action)
 			reward += immediate_reward
@@ -148,7 +146,7 @@ class Agent:
 			steps += 1
 		if done:
 			cr = True
-		return steps,reward,cr
+		return steps, reward, cr
 
 	def get_new_pos(self, old_pos: tuple, action: int, valid: bool) -> tuple:
 		if not valid:
