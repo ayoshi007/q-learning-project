@@ -18,7 +18,7 @@ epsilon_decay = [True, False]
 learning_rate_decay = [True, False]
 random_training = [True, False]
 
-repeats = 1
+repeats = 5
 
 def main():
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION
