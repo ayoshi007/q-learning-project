@@ -29,6 +29,9 @@ def main():
 	options = sys.argv[2:]
 	if '-q' in options or '--quiet' in options:
 		show_gui = False
+	if '-nr' in options or '--no-reporting' in options:
+		show_gui = None
+		
 	if maze_file[-4:] != '.txt':
 		maze_file += '.txt'
 	maze = maze_gen(MAZE_PATH + maze_file, show_gui)
@@ -99,6 +102,7 @@ def maze_gen(file: str, show_gui: bool):
 		sys.exit("No agent or goal found in maze")
 	return Maze(file[len(MAZE_PATH):-4], b, agent, goals, random_training_locations, testing_spawn_points, show_gui)
 
+print("Hello")
 if __name__ == '__main__':
 	main()
 	

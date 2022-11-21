@@ -147,7 +147,6 @@ class Maze:
 		self.hyperparameters = hyperparameters
 		self.repeats = repeats
 		self.total_runs = total_runs
-		
 		if self.show_gui:
 			self.board.on_start = self.run_hyperparameters
 			self.board.show()
@@ -159,11 +158,11 @@ class Maze:
 		test_reward = []
 		test_cr = []
 		self.run_number = 1
-		print(f"Starting {self.total_runs} hyperparameter runs")
+		print(f"Running {self.total_runs} hyperparameter combinations")
 		
 		for learning_rate, epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay, random_training in self.hyperparameters:
 			for _ in range(self.repeats):
-				print(f'Run {self.run_number}/{self.total_runs}');
+				print(f'Run {self.run_number}/{self.total_runs}')
 				self.agent.reset_position()
 				self.agent.reset_table()
 				
@@ -201,6 +200,7 @@ class Maze:
 				#df.to_csv("qtable.csv")
 				self.run_number += 1
 		
+		print('Done')
 		self.update_board_title('Done')
 		
 				

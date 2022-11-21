@@ -78,12 +78,12 @@ class Agent:
 
 			if self.show_gui:
 				self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
-			else:
+			elif self.show_gui is not None:
 				print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
 			self.maze.reset_goals()
 			steps,rewards,cr = self.run_episode()
 			
-			if not self.show_gui:
+			if self.show_gui is not None and not self.show_gui:
 				print(steps)
 			
 			self.episode_steps.append(steps)
@@ -99,7 +99,7 @@ class Agent:
 		
 		if self.show_gui:
 			self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number}')
-		else:
+		elif self.show_gui is not None:
 			print(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): ', end='')
 		
 		pretest_q_table = self.q_table
@@ -108,7 +108,7 @@ class Agent:
 		
 		if self.show_gui:
 			self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) Final test {test_number}, start_loc ({test_location[0]}, {test_location[1]}): {"Goal found" if cr else "No goal"}, steps {steps}, reward {rewards}')
-		else:
+		elif self.show_gui is not None:
 			print(f' Goal found: {cr}, steps {steps}, reward {rewards}')
 			
 		return steps, rewards, cr
