@@ -9,15 +9,15 @@ from constants import *
 from itertools import product
 from recording import init_csvs
 
-learning_rates = [.1]#, .5, .9]
-epsilons = [.2]#, .5, .9] # exploit-explore 
-epsilon_decay = [True] #, False]
-random_training = [True] #, False]
-learning_rate_decay = [True] #, False]
+learning_rates = [.01,.05,.1, .5, .9]
+epsilons = [.3, .5, .9] # exploit-explore 
+epsilon_decay = [False,True]
+random_training = [False,True]
+learning_rate_decay = [False,True]
 epsilon_end = [.01] # For Epsilon Decay
-gammas = [.9]#, .5, .3, .1] # discount factor
-max_iters = [50]#, 200, 300]
-repeats = 5
+gammas = [.5,.7,.9] # discount factor
+max_iters = [100, 200, 300]
+repeats = 1
 
 def main():
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION

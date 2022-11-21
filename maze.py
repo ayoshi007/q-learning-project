@@ -149,6 +149,7 @@ class Maze:
 	def run_hyperparameters(self):
 		test_steps = []
 		test_reward = []
+		test_cr = []
 		print("Starting hyperparameter runs")
 		for random_training, learning_rate, epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay in self.hyperparameters:
 			for _ in range(self.repeats):
@@ -158,26 +159,31 @@ class Maze:
 				self.agent.set_hyperparameters(learning_rate,epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay, random_training)
 				
 				self.agent.q_train(self.random_spots)
+
+				avrg_training_steps = sum(self.agent.episode_steps) / max_iter
+				avrg_training_reward = sum(self.agent.episode_rewards) / max_iter
 				
+				hard_limit = int(avrg_training_steps*2)
+
 				print()
 				for i, x in enumerate(self.testing_spots):
-					s, r = self.agent.q_test(i + 1, x)
+					s, r, cr = self.agent.q_test(i + 1, x, hard_limit)
 					test_steps.append(s)
 					test_reward.append(r)
+					test_cr.append(cr)
 						
 					if self.show_gui:
 						time.sleep(1)
 				print()
 				
-				avrg_training_steps = sum(self.agent.episode_steps) / max_iter
-				avrg_training_reward = sum(self.agent.episode_rewards) / max_iter
 				
-				record_metrics(self.maze_name, random_training, learning_rate, lr_decay, epsilon, epsilon_end, epsilon_decay, gamma, max_iter, test_steps,test_reward, avrg_training_steps, avrg_training_reward)
+				record_metrics(self.maze_name, random_training, learning_rate, lr_decay, epsilon, epsilon_end, epsilon_decay, gamma, max_iter, test_cr,test_steps,test_reward, avrg_training_steps, avrg_training_reward)
 				record_modelhistory(self.agent.episode_steps)
 				record_rewardhistory(self.agent.episode_rewards)
 				
 				test_steps = []
 				test_reward = []
+				test_cr = []
 						
 				#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
 				#df.to_csv("qtable.csv")

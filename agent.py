@@ -1,6 +1,7 @@
 from game2dboard import Board
 import numpy as np
 import random
+import math
 from constants import *
 
 class Agent:
@@ -63,9 +64,8 @@ class Agent:
 		self.q_table[old_pos[0]][old_pos[1]][action] += delta
 
 	def q_train(self,random_locations):
-		
+		self.limit = math.inf
 		# perform max_iter episodes
-		
 		for i in range(self.max_iter):
 			if self.ep_decay:
 				self.epsilon_decay(i)
@@ -81,7 +81,7 @@ class Agent:
 			else:
 				print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
 			
-			steps,rewards = self.run_episode()
+			steps,rewards,cr = self.run_episode()
 			
 			if not self.show_gui:
 				print(steps)
@@ -91,9 +91,10 @@ class Agent:
 			self.reset_position()
 			
 	
-	def q_test(self, test_number, test_location) -> int:
+	def q_test(self, test_number, test_location,limit) -> int:
 		self.cur_epsilon = 0
 		self.cur_pos = test_location
+		self.limit = limit
 		lr_init = 1 if self.lr_decay else self.learning_rate
 		
 		if self.show_gui:
@@ -102,15 +103,15 @@ class Agent:
 			print(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): ', end='')
 		
 		pretest_q_table = self.q_table
-		steps, rewards = self.run_episode()
+		steps, rewards,cr = self.run_episode()
 		self.q_table = pretest_q_table
 		
 		if self.show_gui:
-			self.maze.update_board_title(f'Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): steps {steps}, reward {rewards}')
+			self.maze.update_board_title(f'Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): Goal found: {cr}, steps {steps}, reward {rewards}')
 		else:
-			print(f'steps {steps}, reward {rewards}')
+			print(f' Goal found: {cr}, steps {steps}, reward {rewards}')
 			
-		return steps,rewards
+		return steps,rewards,cr
 	
 
 	
@@ -118,8 +119,9 @@ class Agent:
 		done = False
 		steps = 0
 		reward = 0
+		cr = False
 		# perform episode
-		while not done:
+		while not done and not(steps > self.limit):
 			old_pos = self.cur_pos
 			surroundings = self.maze.get_surroundings(old_pos[0], old_pos[1])
 			
@@ -144,7 +146,9 @@ class Agent:
 			
 			done = self.move(old_pos, new_pos)
 			steps += 1
-		return steps,reward
+		if done:
+			cr = True
+		return steps,reward,cr
 
 	def get_new_pos(self, old_pos: tuple, action: int, valid: bool) -> tuple:
 		if not valid:
