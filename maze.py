@@ -6,6 +6,7 @@ import random
 from recording import record_metrics, record_modelhistory, record_rewardhistory
 from constants import *
 import time
+import sys
 
 class Maze:
 	def __init__(self, maze_name: str, board: Board, agent: tuple, goals: set, random_spots, testing_spots, show_gui=True):
@@ -159,10 +160,11 @@ class Maze:
 		test_cr = []
 		self.run_number = 1
 		print(f"Running {self.total_runs} hyperparameter combinations")
-		
+		sys.stdout.flush()
 		for learning_rate, epsilon, epsilon_end, gamma, max_iter, epsilon_decay, lr_decay, random_training in self.hyperparameters:
 			for _ in range(self.repeats):
 				print(f'Run {self.run_number}/{self.total_runs}')
+				sys.stdout.flush()
 				self.agent.reset_position()
 				self.agent.reset_table()
 				
@@ -201,6 +203,7 @@ class Maze:
 				self.run_number += 1
 		
 		print('Done')
+		sys.stdout.flush()
 		self.update_board_title('Done')
 		
 				

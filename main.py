@@ -14,11 +14,11 @@ epsilons = [.3, .5, .9] # exploit-explore
 epsilon_end = [.01] # For Epsilon Decay
 gammas = [.5, .7, .9] # discount factor
 max_iters = [100, 200, 300]
-epsilon_decay = [True, False]
-learning_rate_decay = [True, False]
-random_training = [True, False]
+epsilon_decay = [False, True]
+learning_rate_decay = [False, True]
+random_training = [False, True]
 
-repeats = 1
+repeats = 5
 
 def main():
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION
@@ -102,7 +102,7 @@ def maze_gen(file: str, show_gui: bool):
 		sys.exit("No agent or goal found in maze")
 	return Maze(file[len(MAZE_PATH):-4], b, agent, goals, random_training_locations, testing_spawn_points, show_gui)
 
-print("Hello")
+
 if __name__ == '__main__':
 	main()
 	

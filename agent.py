@@ -3,6 +3,7 @@ import numpy as np
 import random
 import math
 from constants import *
+import sys
 
 class Agent:
 	def __init__(self, maze, show_gui: bool, starting_row=0, starting_col=0):
@@ -80,11 +81,13 @@ class Agent:
 				self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}')
 			elif self.show_gui is not None:
 				print(f'LR: {self.learning_rate:.2f}, Eps: {self.cur_epsilon:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Episode {i}  Steps: ', end='')
+				sys.stdout.flush()
 			self.maze.reset_goals()
 			steps,rewards,cr = self.run_episode()
 			
 			if self.show_gui is not None and not self.show_gui:
 				print(steps)
+				sys.stdout.flush()
 			
 			self.episode_steps.append(steps)
 			self.episode_rewards.append(rewards)
@@ -101,6 +104,7 @@ class Agent:
 			self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number}')
 		elif self.show_gui is not None:
 			print(f'LR_init: {lr_init:.2f}, Eps_init: {self.epsilon_init:.2f}, Gamma: {self.gamma}, max_it: {self.max_iter}, Final test {test_number} starting from ({test_location[0]}, {test_location[1]}): ', end='')
+			sys.stdout.flush()
 		
 		pretest_q_table = self.q_table
 		steps, rewards, cr = self.run_episode()
@@ -110,6 +114,7 @@ class Agent:
 			self.maze.update_board_title(f'({self.maze.run_number}/{self.maze.total_runs}) Final test {test_number}, start_loc ({test_location[0]}, {test_location[1]}): {"Goal found" if cr else "No goal"}, steps {steps}, reward {rewards}')
 		elif self.show_gui is not None:
 			print(f' Goal found: {cr}, steps {steps}, reward {rewards}')
+			sys.stdout.flush()
 			
 		return steps, rewards, cr
 	
