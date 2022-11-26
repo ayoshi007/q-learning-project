@@ -23,7 +23,7 @@ repeats = 5
 def main():
 	#SYNTAX FOR MAZE FILE IS MAZE#, NO FILE EXTENSION
 	if len(sys.argv) == 1:
-		sys.exit("Usage: python maze.py <file with maze format>")
+		sys.exit("Usage: python main.py <file with maze format>")
 	maze_file = sys.argv[1].upper()
 	show_gui = True
 	options = sys.argv[2:]
