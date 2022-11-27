@@ -1,4 +1,9 @@
-from game2dboard import Board
+#####################################################################################################################
+#
+# This code is for the Final Project of UTD F22 CS 4375.001 Introduction to Machine Learning course.
+# Created by Akihiro "Aki" Yoshimoto and Garyn Varela-Moody
+#
+#####################################################################################################################
 import numpy as np
 import random
 import math
@@ -20,8 +25,6 @@ class Agent:
 		self.episode_steps = []
 		self.episode_rewards = []
 	
-	# def get_history():
-	# 	return self.episode_steps
 	
 	def set_hyperparameters(self, learning_rate, epsilon, epsilon_end, gamma, max_iter,epsilon_decay:bool,lr_decay:bool,random_training:bool):
 		self.learning_rate = learning_rate
@@ -130,7 +133,6 @@ class Agent:
 			old_pos = self.cur_pos
 			surroundings = self.maze.get_surroundings(old_pos[0], old_pos[1])
 			
-			actions = []
 			# explore
 			if random.uniform(0, 1) < self.cur_epsilon:
 				action = random.randint(0, 3)

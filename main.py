@@ -1,10 +1,21 @@
+#####################################################################################################################
+#
+# This code is for the Final Project of UTD F22 CS 4375.001 Introduction to Machine Learning course.
+# Created by Akihiro "Aki" Yoshimoto and Garyn Varela-Moody
+#
+#####################################################################################################################
+
+#####################################################################################################################
+#
+# The file in the project acts as a main starter point for the Project.
+# Initializing all hyperparamters, creation of maze, and initialization of all result recording.
+# The program will read in a text file containing the layout of the provided maze and generate said maze for the agent to interact with.
+#
+#####################################################################################################################
 import sys
-import random
-import recording
 from game2dboard import Board
 from PIL import Image
 from maze import Maze
-from agent import Agent
 from constants import *
 from itertools import product
 from recording import init_csvs

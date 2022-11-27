@@ -1,8 +1,13 @@
+#####################################################################################################################
+#
+# This code is for the Final Project of UTD F22 CS 4375.001 Introduction to Machine Learning course.
+# Created by Akihiro "Aki" Yoshimoto and Garyn Varela-Moody
+#
+#####################################################################################################################
+
 from game2dboard import Board
 from agent import Agent
 import numpy as np
-import pandas as pd
-import random
 from recording import record_metrics, record_modelhistory, record_rewardhistory
 from constants import *
 import time
@@ -198,8 +203,6 @@ class Maze:
 				test_reward = []
 				test_cr = []
 						
-				#df = pd.DataFrame(data=self.agent.q_table.reshape(-1, 4), columns=list('NESW'))
-				#df.to_csv("qtable.csv")
 				self.run_number += 1
 		
 		print('Done')

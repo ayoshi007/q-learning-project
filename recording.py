@@ -1,3 +1,9 @@
+#####################################################################################################################
+#
+# This code is for the Final Project of UTD F22 CS 4375.001 Introduction to Machine Learning course.
+# Created by Akihiro "Aki" Yoshimoto and Garyn Varela-Moody
+#
+#####################################################################################################################
 from constants import *
 from datetime import datetime
 
