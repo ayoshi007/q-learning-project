@@ -1,2 +1,55 @@
-# q-learning-project
-Project for UTD F22 CS 4375 Intro to Machine Learning
+# README for CS4375.001 Final Project: Maze Traversal with Q-learning
+
+The program in this submission requires Python 3 to run.
+If you do not have Python 3 installed, you can install it here: https://www.python.org/downloads/
+
+The files for this submission use the following Python Libraries:
+    - game2dboard
+    - pillow
+    - numpy
+
+To install the above libraries, run the below commands after Python 3 has been installed:
+  pip install game2dboard
+  pip install pillow
+  pip install numpy
+
+Be sure you have the below directory structure:
+  Maze/
+    MAZE1.txt
+    MAZE2.txt
+    MAZE3.txt
+    MAZE4.txt
+    MAZE5.txt
+  img/
+    agent.png
+    agent_goalin.png
+    agent_in_hazard.png
+    goal.png
+    hazard.png
+    wall.png
+  agent.py
+  constants.py
+  main.py
+  maze.py
+  recording.py
+
+The Maze directory contains the text files encoding the maze structures.
+The img directory contains the images for the GUI. If any images not ending with the prefix “resize” is removed, the program will not work.
+
+Below is the command to run the program:
+  python main.py <maze file> [-q | --quiet] [-nr | --no-recording]
+- <maze file> will be the maze you want the agent to run on. The .txt extension is NOT required; only the file name is needed.
+- Running the program with no options will present a GUI. Hyperparameter combinations will be displayed on the title of the GUI window.
+- -q or --quiet will disable the GUI. Text feedback of the hyperparameters, the results of training, and test run results is still provided, 
+- -nr or --no-recording will disable text feedback of hyperparameters. The only feedback will be the number run the agent is on.
+ 
+After the program is done running, 3 CSV files will be outputted, with timestamps in the file names.
+- “model_metrics_<timestamp>.csv” - contains the metrics of the model
+- “model_histories_<timestamp>.csv” - contains the number steps in each iteration of the corresponding row in the metrics CSV.
+- “model_rewards_<timestamp>.csv” - contains the total reward gained in each iteration of the corresponding row in the metrics CSV.
+
+Hyperparameter definitions and descriptions of the output CSV files can be found in the “Hyperparameter and Metric Definitions.pdf” document.
+
+In order to edit which hyperparameters will be run, edit the hyperparameter lists found at the top of main.py.
+
+In order to edit the speed at which the GUI moves, edit the SLEEP constant found in constants.py. A smaller number will result in faster movement.
