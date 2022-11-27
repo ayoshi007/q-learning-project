@@ -4,14 +4,6 @@
 # Created by Akihiro "Aki" Yoshimoto and Garyn Varela-Moody
 #
 #####################################################################################################################
-
-#####################################################################################################################
-#
-# The file in the project acts as a main starter point for the Project.
-# Initializing all hyperparamters, creation of maze, and initialization of all result recording.
-# The program will read in a text file containing the layout of the provided maze and generate said maze for the agent to interact with.
-#
-#####################################################################################################################
 import sys
 from game2dboard import Board
 from PIL import Image
