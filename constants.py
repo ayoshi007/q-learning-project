@@ -33,4 +33,4 @@ EAST = 1
 SOUTH = 2
 WEST = 3
 
-SLEEP = 0
+SLEEP = 0.0001
